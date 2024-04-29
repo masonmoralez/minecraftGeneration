@@ -1,34 +1,108 @@
+//https://youtu.be/9x6NvGkxXhU?feature=shared
+//https://www.youtube.com/watch?v=WP-Bm65Q-1Y
+//https://youtu.be/vFvwyu_ZKfU?feature=shared
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class caveGen : MonoBehaviour
+public class blockTerrainGenerator : MonoBehaviour
 {
+    [SerializeField] GameObject stoneBlock;
 
-    [SerializeField] GameObject stone;
-    // Start is called before the first frame update
+    private int depth = 6;
+
+    private int width = 32;
+    private int length = 32;
+
+    private float scale = 30f;
+
+    public float offsetX;
+    public float offsetY;
+
+    public int blockPositionHeight;
+
+    Dictionary<string, Vector3Int> stonePosition = new Dictionary<string, Vector3Int>();
+
+    //Vector3Int[,,] stonePos = new Vector3Int[int xPosition = 0, int height = 0, int zPos = 0];
+    
+    List<int> PositionAndHeights = new List<int>();
+
+    public Vector3Int stonePos;
+
     void Start()
     {
-        int i = 0;
-        for (i = 0; i< 50; i++)
-        {
-            int j = 0;
-            for (j = 0; j<50; j++)
-            {
-                int k = 0;
-                for (k=0; k<50; k++)
-                {
-                    Vector3Int pos = new Vector3Int(i, j, k); 
-                    Instantiate(stone, pos, Quaternion.identity);
-                }
-            }
+        offsetX = Random.Range(0f, 99999f);
+        offsetY = Random.Range(0f, 99999f);
+        //PositionAndHeights = GenerateBlockHeight();
+        GameObject stone = new GameObject("stone");
 
+        //for (int i = 1; i < 11; i++)
+        //{
+        //    Debug.Log("x = " + (PositionAndHeights[1 * i]));
+        //    Debug.Log("z = " + (PositionAndHeights[2 * i]));
+        //    Debug.Log("height = " + (PositionAndHeights[3 * i]));
+        //}
+        //corner = new Vector3Int (0,0,0);
+        //CreateCieling();
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int z = 0; z < length; z++)
+            {
+                int height = CalculateColor(x, z);
+                stonePos = new Vector3Int(x, height, z);
+                Instantiate(stoneBlock, stonePos, Quaternion.identity, stone.transform);
+                int difference = 12 - height;
+                //for (int y = 0; y < difference; y++)
+                //{
+                //    Instantiate(stoneBlock, (stonePos + new Vector3Int(0, height - (y + 1), 0)), Quaternion.identity, stone.transform);
+                //}
+            }
         }
+
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+
+    }
+
+    //void CreateCieleing()
+    //{
+
+    //}
+
+
+    //List<int> GenerateBlockHeight ()
+    //{
+    //    //Generate a perlin noise map for the texture
+    //    PositionAndHeights.Add(0);
+    //    for (int xPos = 1; x < width + 1; x++) //this for loop runs for however many x pixel values there are
+    //    {
+    //        for (int zcoord = 1; zcoord < length + 1; zcoord++) //this for loop runs for however many y pixel values there are
+    //        {
+    //            blockPositionHeight = CalculateColor(x, zcoord);
+    //            PositionAndHeights.Add(xPos);
+    //            PositionAndHeights.Add(zcoord);
+    //            Debug.Log(zcoord);
+    //            PositionAndHeights.Add(CalculateColor(x, zcoord));
+    //        }
+    //    }
+    //    return PositionAndHeights;
+    //}
+
+    int CalculateColor(int x, int y)
+    {
+        //Perlin Noise repeats at whole numbers, so therefore we need decimal point numbers
+        float xCoord = (float)x / width * scale + offsetX;
+        float yCoord = (float)y / length * scale + offsetY;
+        int sample = Mathf.RoundToInt(Mathf.PerlinNoise(xCoord, yCoord) * 8);
+        return sample;
+
+        //float xCoord = (float)x / width * scale + offsetX;
+        //float yCoord = (float)y / height * scale + offsetY;
+        //float sample = Mathf.PerlinNoise(xCoord, yCoord);
+        //return new Color(sample, sample, sample);
     }
 }
