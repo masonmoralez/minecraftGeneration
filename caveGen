@@ -9,23 +9,24 @@ using UnityEngine;
 public class blockTerrainGenerator : MonoBehaviour
 {
     [SerializeField] GameObject stoneBlock;
+    [SerializeField] GameObject iron;
 
     private int caveDepth = 8;
 
     private int width = 16;
     private int length = 16;
 
-    private float scale = 5f;
+    private float scale = 2f;
 
     public float offsetX;
     public float offsetY;
 
     public int blockPositionHeight;
 
-    Dictionary<Vector3Int, string > blockPosition = new Dictionary<Vector3Int, string>();
+    Dictionary<Vector3Int, string> blockPosition = new Dictionary<Vector3Int, string>();
 
     //Vector3Int[,,] stonePos = new Vector3Int[int xPosition = 0, int height = 0, int zPos = 0];
-    
+
     List<int> PositionAndHeights = new List<int>();
 
     public Vector3Int stonePos;
@@ -34,6 +35,7 @@ public class blockTerrainGenerator : MonoBehaviour
     {
         //PositionAndHeights = GenerateBlockHeight();
         GameObject stone = new GameObject("stone");
+        GameObject iron = new GameObject("iron");
 
         //for (int i = 1; i < 11; i++)
         //{
@@ -56,30 +58,27 @@ public class blockTerrainGenerator : MonoBehaviour
                 //int difference = 12 - height;
                 for (int y = 0; y < height + 5; y++)//5 is just the number of blocks below the lowest value for height
                 {
-                    int lowerFillCaveBlockPosition = height - y;
-                    blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "stone");
-                    Instantiate(stoneBlock, (new Vector3Int (x, lowerFillCaveBlockPosition, z)), Quaternion.identity, stone.transform);
+                    float choice = Random.Range(0, 10);
+                    if (choice <= 1)
+                    {
+                        int secondChoice = Random.Range(0, 6);
+                        List<string> strings = new List<string> {"iron", "gold", "lapis", "emerald", "redstone", "coal", "diamond"};
+
+
+                        int lowerFillCaveBlockPosition = height - y;
+                        blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "iron");
+                        Instantiate(iron, (new Vector3Int(x, lowerFillCaveBlockPosition, z)), Quaternion.identity, iron.transform);
+
+                    }
+                    else
+                    {
+                        int lowerFillCaveBlockPosition = height - y;
+                        blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "stone");
+                        Instantiate(stoneBlock, (new Vector3Int(x, lowerFillCaveBlockPosition, z)), Quaternion.identity, stone.transform);
+                    }
                 }
             }
         }
-        for (int i = 0; i < length(blockPosition); )
-        //offsetX = Random.Range(0f, 99999f);
-        //offsetY = Random.Range(0f, 99999f);
-        //for (int x = 0; x < width; x++)
-        //{
-        //    for (int z = 0; z < length; z++)
-        //    {
-        //        int height = CalculateColor(x, z) + 12;
-        //        stonePos = new Vector3Int(x, height, z);
-        //        //Instantiate(stoneBlock, stonePos, Quaternion.identity, stone.transform);
-        //        //int difference = 12 - height;
-        //        int difference = 25 - height;
-        //        for (int y = 0; y < difference; y++)//5 is just the number of blocks below the lowest value for height
-        //        {
-        //            Instantiate(stoneBlock, (stonePos + new Vector3Int(0, y, 0)), Quaternion.identity, stone.transform);
-        //        }
-        //    }
-        //}
 
     }
 
