@@ -10,19 +10,19 @@ public class blockTerrainGenerator : MonoBehaviour
 {
     [SerializeField] GameObject stoneBlock;
 
-    private int depth = 6;
+    private int caveDepth = 8;
 
-    private int width = 32;
-    private int length = 32;
+    private int width = 16;
+    private int length = 16;
 
-    private float scale = 30f;
+    private float scale = 5f;
 
     public float offsetX;
     public float offsetY;
 
     public int blockPositionHeight;
 
-    Dictionary<string, Vector3Int> stonePosition = new Dictionary<string, Vector3Int>();
+    Dictionary<Vector3Int, string > blockPosition = new Dictionary<Vector3Int, string>();
 
     //Vector3Int[,,] stonePos = new Vector3Int[int xPosition = 0, int height = 0, int zPos = 0];
     
@@ -32,8 +32,6 @@ public class blockTerrainGenerator : MonoBehaviour
 
     void Start()
     {
-        offsetX = Random.Range(0f, 99999f);
-        offsetY = Random.Range(0f, 99999f);
         //PositionAndHeights = GenerateBlockHeight();
         GameObject stone = new GameObject("stone");
 
@@ -45,21 +43,43 @@ public class blockTerrainGenerator : MonoBehaviour
         //}
         //corner = new Vector3Int (0,0,0);
         //CreateCieling();
-
+        offsetX = Random.Range(0f, 99999f);
+        offsetY = Random.Range(0f, 99999f);
+        Vector3Int startingChunkCorner = new Vector3Int(0, 0, 0);
         for (int x = 0; x < width; x++)
         {
             for (int z = 0; z < length; z++)
             {
                 int height = CalculateColor(x, z);
                 stonePos = new Vector3Int(x, height, z);
-                Instantiate(stoneBlock, stonePos, Quaternion.identity, stone.transform);
-                int difference = 12 - height;
-                //for (int y = 0; y < difference; y++)
-                //{
-                //    Instantiate(stoneBlock, (stonePos + new Vector3Int(0, height - (y + 1), 0)), Quaternion.identity, stone.transform);
-                //}
+                //Instantiate(stoneBlock, stonePos, Quaternion.identity, stone.transform);
+                //int difference = 12 - height;
+                for (int y = 0; y < height + 5; y++)//5 is just the number of blocks below the lowest value for height
+                {
+                    int lowerFillCaveBlockPosition = height - y;
+                    blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "stone");
+                    Instantiate(stoneBlock, (new Vector3Int (x, lowerFillCaveBlockPosition, z)), Quaternion.identity, stone.transform);
+                }
             }
         }
+        for (int i = 0; i < length(blockPosition); )
+        //offsetX = Random.Range(0f, 99999f);
+        //offsetY = Random.Range(0f, 99999f);
+        //for (int x = 0; x < width; x++)
+        //{
+        //    for (int z = 0; z < length; z++)
+        //    {
+        //        int height = CalculateColor(x, z) + 12;
+        //        stonePos = new Vector3Int(x, height, z);
+        //        //Instantiate(stoneBlock, stonePos, Quaternion.identity, stone.transform);
+        //        //int difference = 12 - height;
+        //        int difference = 25 - height;
+        //        for (int y = 0; y < difference; y++)//5 is just the number of blocks below the lowest value for height
+        //        {
+        //            Instantiate(stoneBlock, (stonePos + new Vector3Int(0, y, 0)), Quaternion.identity, stone.transform);
+        //        }
+        //    }
+        //}
 
     }
 
@@ -97,7 +117,7 @@ public class blockTerrainGenerator : MonoBehaviour
         //Perlin Noise repeats at whole numbers, so therefore we need decimal point numbers
         float xCoord = (float)x / width * scale + offsetX;
         float yCoord = (float)y / length * scale + offsetY;
-        int sample = Mathf.RoundToInt(Mathf.PerlinNoise(xCoord, yCoord) * 8);
+        int sample = Mathf.RoundToInt(Mathf.PerlinNoise(xCoord, yCoord) * caveDepth);
         return sample;
 
         //float xCoord = (float)x / width * scale + offsetX;
