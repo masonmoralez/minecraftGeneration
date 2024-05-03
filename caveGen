@@ -1,120 +1,71 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class CaveGen : MonoBehaviour
 {
-
-    [SerializeField] GameObject stone;
-    [SerializeField] GameObject iron;
-    [SerializeField] GameObject gold;
-    [SerializeField] GameObject lapis;
-    [SerializeField] GameObject emerald;
-    [SerializeField] GameObject redstone;
-    [SerializeField] GameObject coal;
-    [SerializeField] GameObject diamond;
+    [SerializeField] GameObject stonePrefab;
+    [SerializeField] GameObject ironPrefab;
+    [SerializeField] GameObject goldPrefab;
+    [SerializeField] GameObject lapisPrefab;
+    [SerializeField] GameObject emeraldPrefab;
+    [SerializeField] GameObject redstonePrefab;
+    [SerializeField] GameObject coalPrefab;
+    [SerializeField] GameObject diamondPrefab;
 
     private int caveDepth = 8;
-
     private int width = 16;
     private int length = 16;
-
     private float scale = 2f;
-
-    public float offsetX;
-    public float offsetY;
-
-    public int blockPositionHeight;
-
-    Dictionary<Vector3Int, string> blockPosition = new Dictionary<Vector3Int, string>();
-
-    List<int> PositionAndHeights = new List<int>();
-
-    public Vector3Int stonePos;
+    private float offsetX;
+    private float offsetY;
+    private Dictionary<Vector3Int, GameObject> blockPositions = new Dictionary<Vector3Int, GameObject>();
 
     void Start()
     {
-        GameObject stone = new GameObject("stone");
-        GameObject iron = new GameObject("iron");
-        GameObject gold = new GameObject("gold");
-        GameObject lapis = new GameObject("lapis");
-        GameObject emerald = new GameObject("emerald");
-        GameObject redstone = new GameObject("redstone");
-        GameObject coal = new GameObject("coal");
-        GameObject diamond = new GameObject("diamond");
-
         offsetX = Random.Range(0f, 99999f);
         offsetY = Random.Range(0f, 99999f);
-        Vector3Int startingChunkCorner = new Vector3Int(0, 0, 0);
 
+        GenerateCave();
+    }
+
+    void GenerateCave()
+    {
         for (int x = 0; x < width; x++)
         {
             for (int z = 0; z < length; z++)
             {
-                int height = CalculateColor(x, z);
-                stonePos = new Vector3Int(x, height, z);
+                int height = CalculateHeight(x, z);
                 for (int y = 0; y < height + 5; y++)
                 {
                     int lowerFillCaveBlockPosition = height - y;
-                    int choice = Random.Range(0, 10);
-                    if (choice <= 1)
-                    {
-                        int secondChoice = Random.Range(0, 7);
-                        switch (secondChoice)
-                        {
-                            case 0:
-                                blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "iron");
-                                Instantiate(iron, new Vector3Int(x, lowerFillCaveBlockPosition, z), Quaternion.identity, iron.transform);
-                                break;
-                            case 1:
-                                blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "gold");
-                                Instantiate(gold, new Vector3Int(x, lowerFillCaveBlockPosition, z), Quaternion.identity, gold.transform);
-                                break;
-                            case 2:
-                                blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "lapis");
-                                Instantiate(lapis, new Vector3Int(x, lowerFillCaveBlockPosition, z), Quaternion.identity, lapis.transform);
-                                break;
-                            case 3:
-                                blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "emerald");
-                                Instantiate(emerald, new Vector3Int(x, lowerFillCaveBlockPosition, z), Quaternion.identity, emerald.transform);
-                                break;
-                            case 4:
-                                blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "redstone");
-                                Instantiate(redstone, new Vector3Int(x, lowerFillCaveBlockPosition, z), Quaternion.identity, redstone.transform);
-                                break;
-                            case 5:
-                                blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "coal");
-                                Instantiate(coal, new Vector3Int(x, lowerFillCaveBlockPosition, z), Quaternion.identity, coal.transform);
-                                break;
-                            case 6:
-                                blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "diamond");
-                                Instantiate(diamond, new Vector3Int(x, lowerFillCaveBlockPosition, z), Quaternion.identity, diamond.transform);
-                                break;
-                        }
-
-                    }
-
-                    else
-                    {
-                        blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "stone");
-                        Instantiate(stone, (new Vector3Int(x, lowerFillCaveBlockPosition, z)), Quaternion.identity, stone.transform);
-                    }
+                    GameObject blockPrefab = ChooseBlockPrefab();
+                    Vector3Int position = new Vector3Int(x, lowerFillCaveBlockPosition, z);
+                    blockPositions.Add(position, Instantiate(blockPrefab, position, Quaternion.identity, transform));
                 }
             }
         }
-
     }
 
-    void Update()
+    GameObject ChooseBlockPrefab()
     {
-
+        int choice = Random.Range(0, 10);
+        switch (choice)
+        {
+            case 0: return ironPrefab;
+            case 1: return goldPrefab;
+            case 2: return lapisPrefab;
+            case 3: return emeraldPrefab;
+            case 4: return redstonePrefab;
+            case 5: return coalPrefab;
+            case 6: return diamondPrefab;
+            default: return stonePrefab;
+        }
     }
 
-    int CalculateColor(int x, int y)
+    int CalculateHeight(int x, int z)
     {
         float xCoord = (float)x / width * scale + offsetX;
-        float yCoord = (float)y / length * scale + offsetY;
-        int sample = Mathf.RoundToInt(Mathf.PerlinNoise(xCoord, yCoord) * caveDepth);
-        return sample;
+        float yCoord = (float)z / length * scale + offsetY;
+        return Mathf.RoundToInt(Mathf.PerlinNoise(xCoord, yCoord) * caveDepth);
     }
 }
