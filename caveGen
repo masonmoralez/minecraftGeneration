@@ -5,7 +5,7 @@ using UnityEngine;
 public class CaveGen : MonoBehaviour
 {
 
-    [SerializeField] GameObject stoneBlock;
+    [SerializeField] GameObject stone;
     [SerializeField] GameObject iron;
     [SerializeField] GameObject gold;
     [SerializeField] GameObject lapis;
@@ -55,61 +55,49 @@ public class CaveGen : MonoBehaviour
                 stonePos = new Vector3Int(x, height, z);
                 for (int y = 0; y < height + 5; y++)
                 {
-                    float choice = Random.Range(0, 10);
+                    int lowerFillCaveBlockPosition = height - y;
+                    int choice = Random.Range(0, 10);
                     if (choice <= 1)
                     {
                         int secondChoice = Random.Range(0, 7);
-
-                        if (secondChoice == 0)
+                        switch (secondChoice)
                         {
-                            int lowerFillCaveBlockPosition = height - y;
-                            blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "iron");
-                            Instantiate(iron, (new Vector3Int(x, lowerFillCaveBlockPosition, z)), Quaternion.identity, iron.transform);
-                        }
-                        if (secondChoice == 1)
-                        {
-                            int lowerFillCaveBlockPosition = height - y;
-                            blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "gold");
-                            Instantiate(gold, (new Vector3Int(x, lowerFillCaveBlockPosition, z)), Quaternion.identity, gold.transform);
-                        }
-                        else if (secondChoice == 2)
-                        {
-                            int lowerFillCaveBlockPosition = height - y;
-                            blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "lapis");
-                            Instantiate(lapis, (new Vector3Int(x, lowerFillCaveBlockPosition, z)), Quaternion.identity, lapis.transform);
-                        }
-                        else if (secondChoice == 3)
-                        {
-                            int lowerFillCaveBlockPosition = height - y;
-                            blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "emerald");
-                            Instantiate(emerald, (new Vector3Int(x, lowerFillCaveBlockPosition, z)), Quaternion.identity, emerald.transform);
-                        }
-                        else if (secondChoice == 4)
-                        {
-                            int lowerFillCaveBlockPosition = height - y;
-                            blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "redstone");
-                            Instantiate(redstone, (new Vector3Int(x, lowerFillCaveBlockPosition, z)), Quaternion.identity, redstone.transform);
-                        }
-                        else if (secondChoice == 5)
-                        {
-                            int lowerFillCaveBlockPosition = height - y;
-                            blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "coal");
-                            Instantiate(coal, (new Vector3Int(x, lowerFillCaveBlockPosition, z)), Quaternion.identity, coal.transform);
-                        }
-                        else if (secondChoice == 6)
-                        {
-                            int lowerFillCaveBlockPosition = height - y;
-                            blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "diamond");
-                            Instantiate(diamond, (new Vector3Int(x, lowerFillCaveBlockPosition, z)), Quaternion.identity, diamond.transform);
+                            case 0:
+                                blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "iron");
+                                Instantiate(iron, new Vector3Int(x, lowerFillCaveBlockPosition, z), Quaternion.identity, iron.transform);
+                                break;
+                            case 1:
+                                blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "gold");
+                                Instantiate(gold, new Vector3Int(x, lowerFillCaveBlockPosition, z), Quaternion.identity, gold.transform);
+                                break;
+                            case 2:
+                                blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "lapis");
+                                Instantiate(lapis, new Vector3Int(x, lowerFillCaveBlockPosition, z), Quaternion.identity, lapis.transform);
+                                break;
+                            case 3:
+                                blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "emerald");
+                                Instantiate(emerald, new Vector3Int(x, lowerFillCaveBlockPosition, z), Quaternion.identity, emerald.transform);
+                                break;
+                            case 4:
+                                blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "redstone");
+                                Instantiate(redstone, new Vector3Int(x, lowerFillCaveBlockPosition, z), Quaternion.identity, redstone.transform);
+                                break;
+                            case 5:
+                                blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "coal");
+                                Instantiate(coal, new Vector3Int(x, lowerFillCaveBlockPosition, z), Quaternion.identity, coal.transform);
+                                break;
+                            case 6:
+                                blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "diamond");
+                                Instantiate(diamond, new Vector3Int(x, lowerFillCaveBlockPosition, z), Quaternion.identity, diamond.transform);
+                                break;
                         }
 
                     }
 
                     else
                     {
-                        int lowerFillCaveBlockPosition = height - y;
                         blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "stone");
-                        Instantiate(stoneBlock, (new Vector3Int(x, lowerFillCaveBlockPosition, z)), Quaternion.identity, stone.transform);
+                        Instantiate(stone, (new Vector3Int(x, lowerFillCaveBlockPosition, z)), Quaternion.identity, stone.transform);
                     }
                 }
             }
