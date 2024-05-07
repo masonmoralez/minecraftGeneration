@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class CaveGen : MonoBehaviour
 {
+    // Create game objects
     [SerializeField] GameObject stonePrefab;
     [SerializeField] GameObject ironPrefab;
     [SerializeField] GameObject goldPrefab;
@@ -12,12 +13,20 @@ public class CaveGen : MonoBehaviour
     [SerializeField] GameObject coalPrefab;
     [SerializeField] GameObject diamondPrefab;
 
+
+    // Creates variables
     private int caveDepth = 8;
     private int width = 16;
     private int length = 16;
     private float scale = 2f;
     private float offsetX;
     private float offsetY;
+
+    /// <summary>
+    /// This is our dictionary
+    /// It stores Vector 3 Ints as keys
+    /// The values are game objects (the blocks)
+    /// </summary>    
     private Dictionary<Vector3Int, GameObject> blockPositions = new Dictionary<Vector3Int, GameObject>();
 
     void Start()
@@ -28,8 +37,11 @@ public class CaveGen : MonoBehaviour
         GenerateCave();
     }
 
+
+    // this is the main loop for creating our cave
     void GenerateCave()
     {
+        // nested for-loop iterates in x, y, and z directions
         for (int x = 0; x < width; x++)
         {
             for (int z = 0; z < length; z++)
@@ -38,7 +50,10 @@ public class CaveGen : MonoBehaviour
                 for (int y = 0; y < height + 5; y++)
                 {
                     int lowerFillCaveBlockPosition = height - y;
+
+                    // this calls our function which is explained below
                     GameObject blockPrefab = ChooseBlockPrefab();
+
                     Vector3Int position = new Vector3Int(x, lowerFillCaveBlockPosition, z);
                     blockPositions.Add(position, Instantiate(blockPrefab, position, Quaternion.identity, transform));
                 }
@@ -46,34 +61,42 @@ public class CaveGen : MonoBehaviour
         }
     }
 
+
+    // This function returns which ore prefab we should use.
+    // This is called in the GenerateCave() function,
+    // and is used to randomnly spawn both ores and stone in our cave. 
     GameObject ChooseBlockPrefab()
     {
-        int choice = Random.Range(0, 100); // Generating a random number between 0 and 99
-        if (choice < 10) // Adjust the probability here (e.g., 7% chance for ores)
+        // Generates a random number between 0 and 99
+        int choice = Random.Range(0, 100);
+
+        // % chance to spawn an ore
+        if (choice < 10) 
         {
-            // Ores have a slightly higher spawn rate
+            // Chance to get a valuable ore
             int oreChoice = Random.Range(0, 8); // Randomly choose an ore type
             switch (oreChoice)
             {
-                //case 0: return ironPrefab;
                 case 0: return goldPrefab;
                 case 1: return lapisPrefab;
                 case 2: return emeraldPrefab;
                 case 3: return redstonePrefab;
-                //case 4: return coalPrefab; // Swap with coal
-                case 4: return diamondPrefab; // Swap with diamond
+                case 4: return diamondPrefab;
                 default: return stonePrefab;
             }
         }
-        else if (10 < choice && choice < 20) // Adjust the probability here (e.g., 3% chance for diamond and emerald)
+
+        // higher spawn rate of iron and coal
+        else if (10 < choice && choice < 20) 
         {
-            // Diamond and emerald are rarer
-            int rareChoice = Random.Range(0, 2); // Randomly choose between diamond and emerald
+
+            int rareChoice = Random.Range(0, 2);
             return rareChoice == 0 ? coalPrefab : ironPrefab;
         }
+
+        // highest chance for stone
         else
         {
-            // Higher chance for stone
             return stonePrefab;
         }
     }
