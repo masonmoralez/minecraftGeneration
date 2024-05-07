@@ -1,7 +1,3 @@
-//https://youtu.be/9x6NvGkxXhU?feature=shared
-//https://www.youtube.com/watch?v=WP-Bm65Q-1Y
-//https://youtu.be/vFvwyu_ZKfU?feature=shared
-
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,78 +5,196 @@ using UnityEngine;
 public class blockTerrainGenerator : MonoBehaviour
 {
     [SerializeField] GameObject stoneBlock;
+    [SerializeField] GameObject bedrockBlock;
+    [SerializeField] GameObject ironPrefab;
+    [SerializeField] GameObject goldPrefab;
+    [SerializeField] GameObject lapisPrefab;
+    [SerializeField] GameObject emeraldPrefab;
+    [SerializeField] GameObject redstonePrefab;
+    [SerializeField] GameObject coalPrefab;
+    [SerializeField] GameObject diamondPrefab;
+    //[SerializeField] GameObject bedrockBlock;
+    //GameObject bedrock = new GameObject("bedrock");
 
-    private int caveDepth = 8;
+    private int undergroundDepth = 64;
+    private int numberOfChunksX = 1;
+    private int numberOfChunksZ = 1;
+    private int xChunk = 0;
+    private int zChunk = 0;
+    private float noiseScale = .005f;
 
-    private int width = 16;
+    public int width = 16;
     private int length = 16;
 
-    private float scale = 5f;
+    private float scale = 2f;
 
     public float offsetX;
     public float offsetY;
+    public float offsetZ;
 
     public int blockPositionHeight;
 
-    Dictionary<Vector3Int, string > blockPosition = new Dictionary<Vector3Int, string>();
-
-    //Vector3Int[,,] stonePos = new Vector3Int[int xPosition = 0, int height = 0, int zPos = 0];
-    
-    List<int> PositionAndHeights = new List<int>();
+    Dictionary<Vector3Int, string> world = new Dictionary<Vector3Int, string>();
 
     public Vector3Int stonePos;
 
     void Start()
     {
-        //PositionAndHeights = GenerateBlockHeight();
         GameObject stone = new GameObject("stone");
-
-        //for (int i = 1; i < 11; i++)
-        //{
-        //    Debug.Log("x = " + (PositionAndHeights[1 * i]));
-        //    Debug.Log("z = " + (PositionAndHeights[2 * i]));
-        //    Debug.Log("height = " + (PositionAndHeights[3 * i]));
-        //}
-        //corner = new Vector3Int (0,0,0);
-        //CreateCieling();
+        GameObject bedrock = new GameObject("bedrock");
+        float mainCaveDepthScale = Random.Range(7, 10);
         offsetX = Random.Range(0f, 99999f);
         offsetY = Random.Range(0f, 99999f);
-        Vector3Int startingChunkCorner = new Vector3Int(0, 0, 0);
-        for (int x = 0; x < width; x++)
+        int intOffSetX = Random.Range(0, 99999);
+        int intOffSetY = Random.Range(0, 99999);
+        int intOffSetZ = Random.Range(0, 99999);
+        for (xChunk = 0; xChunk < numberOfChunksX; xChunk += 1)
         {
-            for (int z = 0; z < length; z++)
+            for (zChunk = 0; zChunk < numberOfChunksZ; zChunk += 1)
             {
-                int height = CalculateColor(x, z);
-                stonePos = new Vector3Int(x, height, z);
-                //Instantiate(stoneBlock, stonePos, Quaternion.identity, stone.transform);
-                //int difference = 12 - height;
-                for (int y = 0; y < height + 5; y++)//5 is just the number of blocks below the lowest value for height
+                Vector3Int corner = new Vector3Int((xChunk * width), 0, (zChunk * length));
+                //CreateFloor();
+                for (int x = 0; x < width; x++)
                 {
-                    int lowerFillCaveBlockPosition = height - y;
-                    blockPosition.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z), "stone");
-                    Instantiate(stoneBlock, (new Vector3Int (x, lowerFillCaveBlockPosition, z)), Quaternion.identity, stone.transform);
+                    for (int z = 0; z < length; z++)
+                    {
+                        int height = CalculateColor(x, z, mainCaveDepthScale, offsetX, offsetY);
+                        stonePos = new Vector3Int(x, height, z);
+                        for (int y = 0; y < height + 1; y++)//5 is just the number of blocks below the lowest value for height
+                        {
+                            Vector3Int position = new Vector3Int(x, height - y, z);
+                            int lowerFillCaveBlockPosition = height - y;
+                            string blockPrefab = ChooseBlockPrefab();
+                            world.Add(new Vector3Int(x, lowerFillCaveBlockPosition, z) + corner, blockPrefab);
+                            //Instantiate(stoneBlock, new Vector3Int(x, lowerFillCaveBlockPosition, z) + corner, Quaternion.identity, stone.transform);
+                        }
+                        int bedrockHeight = Random.Range(2, 5);
+                        int stoneHeightAboveBedrock = 4 - bedrockHeight;
+                        //places the stone above the bedrock layer
+                        for (int y = 1; y < (stoneHeightAboveBedrock + 1); y++)
+                        {
+                            string blockPrefab = ChooseBlockPrefab();
+                            world.Add(new Vector3Int(x, -y, z) + corner, blockPrefab);
+                            //Instantiate(stoneBlock, (new Vector3Int(x, -y, z) + corner), Quaternion.identity, stone.transform);
+                        }
+                        //places bottom bedrock layer
+                        for (int y = 1; y < bedrockHeight + 1; y++)
+                        {
+                            world.Add(new Vector3Int(x, -(stoneHeightAboveBedrock + y), z) + corner, "bedrock");
+                            //Instantiate(bedrockBlock, (new Vector3Int(x, -(stoneHeightAboveBedrock + y), z) + corner), Quaternion.identity, bedrock.transform);
+                        }
+                    }
+                }
+                //CreateCieleing();
+                mainCaveDepthScale = Random.Range(7, 10);
+                float cielingOffSetX = Random.Range(0f, 99999f);
+                float cielingOffSetY = Random.Range(0f, 99999f);
+                for (int x = 0; x < width; x++)
+                {
+                    for (int z = 0; z < length; z++)
+                    {
+                        int height = CalculateColor(x, z, mainCaveDepthScale, cielingOffSetX, cielingOffSetY) + 9;
+                        stonePos = new Vector3Int(x, height, z);
+                        int difference = 17 - height;
+                        for (int y = 0; y < difference; y++)
+                        {
+                            string blockPrefab = ChooseBlockPrefab();
+                            int upperFillCaveBlockPosition = height + y;
+                            world.Add(new Vector3Int(x, upperFillCaveBlockPosition, z) + corner, blockPrefab);
+                            //Instantiate(stoneBlock, (new Vector3Int(x, upperFillCaveBlockPosition, z) + corner), Quaternion.identity, stone.transform);
+                        }
+                    }
+                }
+                int h = 32;
+                for (int x = 0; x < width; x++)
+                {
+                    for (int z = 0; z < length; z++)
+                    {
+                        for (int y = 0; y < h; y++)
+                        {
+                            float noiseValue = Perlin3D(x, y, z, intOffSetX, intOffSetY, intOffSetZ, scale, length, width, h);//get value of the noise at given x, y, and z
+                            Vector3Int position = (new Vector3Int(x, y + 14, z) + corner);
+                            if (noiseValue > 0.43)
+                            {
+                                string blockPrefab = ChooseBlockPrefab();
+                                if (world.ContainsKey(position))
+                                {
+                                    world[position] = blockPrefab;
+                                }
+                                else
+                                {
+                                    world.Add(position, blockPrefab);
+                                    //Instantiate(stoneBlock, (new Vector3Int(x, y + 15, z) + corner), Quaternion.identity, stone.transform);
+                                }
+                            }
+                            else
+                            {
+                                if (world.ContainsKey(position))
+                                {
+                                    world[position] = "air";
+                                }
+                                else
+                                {
+                                    world.Add(position, "air");
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
-        for (int i = 0; i < length(blockPosition); )
-        //offsetX = Random.Range(0f, 99999f);
-        //offsetY = Random.Range(0f, 99999f);
-        //for (int x = 0; x < width; x++)
-        //{
-        //    for (int z = 0; z < length; z++)
-        //    {
-        //        int height = CalculateColor(x, z) + 12;
-        //        stonePos = new Vector3Int(x, height, z);
-        //        //Instantiate(stoneBlock, stonePos, Quaternion.identity, stone.transform);
-        //        //int difference = 12 - height;
-        //        int difference = 25 - height;
-        //        for (int y = 0; y < difference; y++)//5 is just the number of blocks below the lowest value for height
-        //        {
-        //            Instantiate(stoneBlock, (stonePos + new Vector3Int(0, y, 0)), Quaternion.identity, stone.transform);
-        //        }
-        //    }
-        //}
+        foreach (var kvp in world)
+        {
+            if (kvp.Value == "stone")
+            {
+                Instantiate(stoneBlock, kvp.Key, Quaternion.identity);
+            }
+            else if (kvp.Value == "bedrock")
+            {
+                Instantiate(bedrockBlock, kvp.Key, Quaternion.identity);
+            }
+            else if (kvp.Value == "gold")
+            {
+                Instantiate(goldPrefab, kvp.Key, Quaternion.identity);
+            }
+            else if (kvp.Value == "lapis")
+            {
+                Instantiate(lapisPrefab, kvp.Key, Quaternion.identity);
+            }
+            else if (kvp.Value == "emerald")
+            {
+                Instantiate(emeraldPrefab, kvp.Key, Quaternion.identity);
+            }
+            else if (kvp.Value == "redstone")
+            {
+                Instantiate(redstonePrefab, kvp.Key, Quaternion.identity);
+            }
+            else if (kvp.Value == "diamond")
+            {
+                Instantiate(diamondPrefab, kvp.Key, Quaternion.identity);
+            }
+            else if (kvp.Value == "coal")
+            {
+                Instantiate(coalPrefab, kvp.Key, Quaternion.identity);
+            }
+            else if (kvp.Value == "iron")
+            {
+                Instantiate(ironPrefab, kvp.Key, Quaternion.identity);
+            }
+        }
+    }
 
+    void GenerateBlocks()
+    {
+        foreach (var kvp in world)
+        //creates all the blocks, look into rendering the blocks individually 
+        {
+            Vector3Int position = kvp.Key;
+            string objectName = kvp.Value;
+
+            // Instantiate the GameObject at the position
+
+        }
     }
 
     void Update()
@@ -88,41 +202,64 @@ public class blockTerrainGenerator : MonoBehaviour
 
     }
 
-    //void CreateCieleing()
-    //{
+    string ChooseBlockPrefab()
+    {
+        int choice = Random.Range(0, 100); // Generating a random number between 0 and 99
+        if (choice < 5) // Adjust the probability here (e.g., 7% chance for ores)
+        {
+            // Ores have a slightly higher spawn rate
+            int oreChoice = Random.Range(0, 8); // Randomly choose an ore type
+            switch (oreChoice)
+            {
+                //case 0: return ironPrefab;
+                case 0: return "gold";
+                case 1: return "lapis";
+                case 2: return "emerald";
+                case 3: return "redstone";
+                //case 4: return coalPrefab; // Swap with coal
+                case 4: return "diamond"; // Swap with diamond
+                default: return "stone";
+            }
+        }
+        else if (10 < choice && choice < 25) // Adjust the probability here (e.g., 3% chance for diamond and emerald)
+        {
+            // Diamond and emerald are rarer
+            int rareChoice = Random.Range(0, 2); // Randomly choose between diamond and emerald
+            return rareChoice == 0 ? "coal" : "iron";
+        }
+        else
+        {
+            // Higher chance for stone
+            return "stone";
+        }
+    }
 
-    //}
 
-
-    //List<int> GenerateBlockHeight ()
-    //{
-    //    //Generate a perlin noise map for the texture
-    //    PositionAndHeights.Add(0);
-    //    for (int xPos = 1; x < width + 1; x++) //this for loop runs for however many x pixel values there are
-    //    {
-    //        for (int zcoord = 1; zcoord < length + 1; zcoord++) //this for loop runs for however many y pixel values there are
-    //        {
-    //            blockPositionHeight = CalculateColor(x, zcoord);
-    //            PositionAndHeights.Add(xPos);
-    //            PositionAndHeights.Add(zcoord);
-    //            Debug.Log(zcoord);
-    //            PositionAndHeights.Add(CalculateColor(x, zcoord));
-    //        }
-    //    }
-    //    return PositionAndHeights;
-    //}
-
-    int CalculateColor(int x, int y)
+    int CalculateColor(int x, int y, float mainCaveDepthScale, float offsetX, float offsetY)
     {
         //Perlin Noise repeats at whole numbers, so therefore we need decimal point numbers
         float xCoord = (float)x / width * scale + offsetX;
         float yCoord = (float)y / length * scale + offsetY;
-        int sample = Mathf.RoundToInt(Mathf.PerlinNoise(xCoord, yCoord) * caveDepth);
+        int sample = Mathf.RoundToInt(Mathf.PerlinNoise(xCoord, yCoord) * mainCaveDepthScale);
         return sample;
+    }
 
-        //float xCoord = (float)x / width * scale + offsetX;
-        //float yCoord = (float)y / height * scale + offsetY;
-        //float sample = Mathf.PerlinNoise(xCoord, yCoord);
-        //return new Color(sample, sample, sample);
+    public static float Perlin3D(float x, float y, float z, int intOffSetX, int intOffSetY, int intOffSetZ, float scale, int length, int width, int height)
+    {
+        float xCoord = (float)x / width * scale + intOffSetX;
+        float yCoord = (float)y / height * scale + intOffSetY;
+        float zCoord = (float)z / length * scale + intOffSetZ;
+
+        float ab = Mathf.PerlinNoise(xCoord, yCoord);
+        float bc = Mathf.PerlinNoise(yCoord, zCoord);
+        float ac = Mathf.PerlinNoise(xCoord, zCoord);
+
+        float ba = Mathf.PerlinNoise(yCoord, xCoord);
+        float cb = Mathf.PerlinNoise(zCoord, yCoord);
+        float ca = Mathf.PerlinNoise(zCoord, xCoord);
+
+        float abc = ab + bc + ac + ba + cb + ca;
+        Debug.Log(abc / 6f);
+        return abc / 6f;
     }
 }
