@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class blockTerrainGenerator : MonoBehaviour
 {
+    //create GameObject variables. Prefab blocks will be assigned to them later to be used.
     [SerializeField] GameObject stoneBlock;
     [SerializeField] GameObject bedrockBlock;
     [SerializeField] GameObject ironPrefab;
@@ -13,21 +14,24 @@ public class blockTerrainGenerator : MonoBehaviour
     [SerializeField] GameObject redstonePrefab;
     [SerializeField] GameObject coalPrefab;
     [SerializeField] GameObject diamondPrefab;
-    //[SerializeField] GameObject bedrockBlock;
-    //GameObject bedrock = new GameObject("bedrock");
 
+    //undegroundDepth is not used right now, but it will serve a purpose later. It will adjust and scale the height of the underground portion of the chunk.
     private int undergroundDepth = 64;
+    //determines the number of chunks that will spawn in the x and z direction
     private int numberOfChunksX = 1;
     private int numberOfChunksZ = 1;
-    private int xChunk = 0;
-    private int zChunk = 0;
+    //unused noiseScale function for getting the Perlin Noise value between 0 and 1
+    //used in this video https://youtu.be/TZFv493D7jo?feature=shared, but there is problems with randomization
     private float noiseScale = .005f;
 
+    //determines the width of a chunk
     public int width = 16;
     private int length = 16;
-
+    //scales the window of data collection for Perlin Noise value
+    //higher value for scale means that there is greater change in variation, more sharp changes in height, and vice versa for lower scale
     private float scale = 2f;
 
+    //the offset makes it so that there are more random values     
     public float offsetX;
     public float offsetY;
     public float offsetZ;
